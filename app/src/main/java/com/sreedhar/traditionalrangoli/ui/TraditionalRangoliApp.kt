@@ -15,10 +15,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.sreedhar.traditionalrangoli.data.BrowseCollection
+import com.sreedhar.traditionalrangoli.data.PatternCatalog
+import com.sreedhar.traditionalrangoli.data.RangoliPattern
 import com.sreedhar.traditionalrangoli.ui.screens.CreateScreen
 import com.sreedhar.traditionalrangoli.ui.screens.ExploreScreen
 import com.sreedhar.traditionalrangoli.ui.screens.HomeScreen
 import com.sreedhar.traditionalrangoli.ui.screens.LaunchSplashScreen
+import com.sreedhar.traditionalrangoli.ui.screens.PatternDetailScreen
+import com.sreedhar.traditionalrangoli.ui.screens.PatternGridScreen
 import com.sreedhar.traditionalrangoli.ui.screens.ProfileScreen
 import com.sreedhar.traditionalrangoli.ui.screens.SavedScreen
 import com.sreedhar.traditionalrangoli.ui.theme.Ivory
@@ -28,40 +33,49 @@ import kotlinx.coroutines.delay
 fun TraditionalRangoliApp() {
     var showSplash by remember { mutableStateOf(true) }
     var tab by remember { mutableStateOf(AppTab.Home) }
+    var selectedPattern by remember { mutableStateOf<RangoliPattern?>(null) }
+    var selectedCollection by remember { mutableStateOf<BrowseCollection?>(null) }
 
     LaunchedEffect(Unit) {
         delay(2_100)
         showSplash = false
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Ivory)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(Ivory)) {
         Scaffold(
             containerColor = Ivory,
             bottomBar = {
-                if (!showSplash) {
+                if (!showSplash && selectedPattern == null && selectedCollection == null) {
                     CourtyardTabBar(selection = tab, onSelect = { tab = it })
                 }
             }
         ) { padding ->
             Box(Modifier.padding(padding).fillMaxSize()) {
-                when (tab) {
-                    AppTab.Home -> HomeScreen()
-                    AppTab.Explore -> ExploreScreen()
-                    AppTab.Create -> CreateScreen()
-                    AppTab.Saved -> SavedScreen()
-                    AppTab.Profile -> ProfileScreen()
+                when {
+                    selectedPattern != null -> PatternDetailScreen(selectedPattern!!) { selectedPattern = null }
+                    selectedCollection != null -> PatternGridScreen(
+                        title = selectedCollection!!.title,
+                        patterns = PatternCatalog.matching(selectedCollection!!),
+                        onBack = { selectedCollection = null },
+                        onOpenPattern = { selectedPattern = it }
+                    )
+                    else -> when (tab) {
+                        AppTab.Home -> HomeScreen(
+                            onOpenPattern = { selectedPattern = it },
+                            onOpenCollection = { selectedCollection = it }
+                        )
+                        AppTab.Explore -> ExploreScreen(
+                            onOpenPattern = { selectedPattern = it },
+                            onOpenCollection = { selectedCollection = it }
+                        )
+                        AppTab.Create -> CreateScreen(onOpenPattern = { selectedPattern = it })
+                        AppTab.Saved -> SavedScreen(onGoToTab = { tab = it })
+                        AppTab.Profile -> ProfileScreen()
+                    }
                 }
             }
         }
-        AnimatedVisibility(
-            visible = showSplash,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        AnimatedVisibility(visible = showSplash, enter = fadeIn(), exit = fadeOut()) {
             LaunchSplashScreen()
         }
     }
