@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sreedhar.traditionalrangoli.R
@@ -59,7 +61,7 @@ fun ProfileScreen() {
             StatTile("${settings.patternsCompleted}", "Patterns", Modifier.weight(1f))
             StatTile(settings.levelTitle.substringAfterLast(' ').ifBlank { "Beginner" }, "Level", Modifier.weight(1f))
             StatTile("${settings.xp}", "Total XP", Modifier.weight(1f))
-            StatTile(settings.favoriteStyle, "Style", Modifier.weight(1f))
+            StatTile(compactStyle(settings.favoriteStyle), "Style", Modifier.weight(1f))
         }
         Column(modifier = Modifier.fillMaxWidth().paperCard().padding(16.dp)) {
             Text(settings.levelTitle, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Ink)
@@ -124,10 +126,35 @@ fun ProfileScreen() {
 
 @Composable
 private fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.paperCard(18.dp).padding(vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Ink)
-        Text(label, color = Muted, fontSize = 10.sp, modifier = Modifier.padding(top = 6.dp))
+    Column(
+        modifier = modifier
+            .paperCard(18.dp)
+            .padding(horizontal = 6.dp, vertical = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 13.sp,
+            color = Ink,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            label,
+            color = Muted,
+            fontSize = 10.sp,
+            maxLines = 1,
+            modifier = Modifier.padding(top = 6.dp)
+        )
     }
+}
+
+private fun compactStyle(value: String): String = when {
+    value.equals("Traditional Motifs", ignoreCase = true) -> "Traditional"
+    else -> value
 }
 
 @Composable

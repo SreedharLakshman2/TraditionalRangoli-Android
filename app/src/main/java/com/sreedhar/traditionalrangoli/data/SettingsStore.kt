@@ -86,7 +86,7 @@ class SettingsStore(context: Context) {
             .apply()
         pattern?.let {
             completedPatternIds = completedPatternIds + it.id
-            favoriteStyle = it.theme.title
+            favoriteStyle = it.theme.shortTitle
             prefs.edit()
                 .putStringSet(Keys.PATTERN_IDS, completedPatternIds)
                 .putString(Keys.STYLE, favoriteStyle)

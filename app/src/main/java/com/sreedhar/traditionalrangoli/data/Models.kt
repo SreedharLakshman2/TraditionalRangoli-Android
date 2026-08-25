@@ -12,13 +12,13 @@ enum class PatternFamily(val title: String) {
     Floral("Floral")
 }
 
-enum class MotifTheme(val title: String, val symbol: String) {
+enum class MotifTheme(val title: String, val symbol: String, val shortTitle: String = title) {
     Lotus("Lotus", "🪷"),
     Peacock("Peacock", "🦚"),
     Diya("Diya", "🪔"),
     Flowers("Flowers", "🌸"),
     Mandala("Mandala", "✦"),
-    Traditional("Traditional Motifs", "卍")
+    Traditional("Traditional Motifs", "卍", "Traditional")
 }
 
 enum class Festival(val title: String) {
