@@ -2,6 +2,7 @@ package com.sreedhar.traditionalrangoli.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,40 +13,39 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sreedhar.traditionalrangoli.R
+import com.sreedhar.traditionalrangoli.ui.LocalSettings
 import com.sreedhar.traditionalrangoli.ui.components.SectionHeader
 import com.sreedhar.traditionalrangoli.ui.components.paperCard
 import com.sreedhar.traditionalrangoli.ui.theme.Gold
 import com.sreedhar.traditionalrangoli.ui.theme.Ink
 import com.sreedhar.traditionalrangoli.ui.theme.Muted
+import com.sreedhar.traditionalrangoli.ui.theme.OnAccent
+import com.sreedhar.traditionalrangoli.ui.theme.Paper
 import com.sreedhar.traditionalrangoli.ui.theme.Primary
 
 @Composable
 fun ProfileScreen() {
     val context = LocalContext.current
+    val settings = LocalSettings.current
     fun open(url: String) {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
-    var sound by remember { mutableStateOf(true) }
-    var haptics by remember { mutableStateOf(true) }
-    var guides by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -56,15 +56,15 @@ fun ProfileScreen() {
     ) {
         SectionHeader("My Rangoli Journey")
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-            StatTile("0", "Patterns", Modifier.weight(1f))
-            StatTile("Beginner", "Level", Modifier.weight(1f))
-            StatTile("0", "Total XP", Modifier.weight(1f))
-            StatTile("Lotus", "Style", Modifier.weight(1f))
+            StatTile("${settings.patternsCompleted}", "Patterns", Modifier.weight(1f))
+            StatTile(settings.levelTitle.substringAfterLast(' ').ifBlank { "Beginner" }, "Level", Modifier.weight(1f))
+            StatTile("${settings.xp}", "Total XP", Modifier.weight(1f))
+            StatTile(settings.favoriteStyle, "Style", Modifier.weight(1f))
         }
         Column(modifier = Modifier.fillMaxWidth().paperCard().padding(16.dp)) {
-            Text("Rangoli Beginner", fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Ink)
+            Text(settings.levelTitle, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Ink)
             LinearProgressIndicator(
-                progress = { 0.08f },
+                progress = { settings.levelProgress },
                 modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(8.dp),
                 color = Primary,
                 trackColor = Gold.copy(alpha = 0.18f)
@@ -81,9 +81,30 @@ fun ProfileScreen() {
             Badge("🏆", "Master Creator", Modifier.weight(1f))
         }
         Column(modifier = Modifier.fillMaxWidth().paperCard().padding(horizontal = 16.dp, vertical = 4.dp)) {
-            SettingRow("Sound", sound) { sound = it }
-            SettingRow("Haptics", haptics) { haptics = it }
-            SettingRow("Show Guides", guides) { guides = it }
+            SettingRow("Sound", settings.soundEnabled) { settings.setSound(it) }
+            SettingRow("Haptics", settings.hapticsEnabled) { settings.setHaptics(it) }
+            SettingRow("Show Guides", settings.showGuides) { settings.setGuides(it) }
+            Text("Default Grid", fontSize = 16.sp, color = Ink, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+                listOf(7, 9, 11, 15).forEach { size ->
+                    val active = settings.defaultGrid == size
+                    Text(
+                        text = "$size × $size",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (active) OnAccent else Ink,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(if (active) Primary else Paper)
+                            .clickable { settings.setGridSize(size) }
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
+                    )
+                }
+            }
+            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Theme", fontSize = 16.sp, color = Ink, modifier = Modifier.weight(1f))
+                Text("Ivory courtyard", color = Muted, fontSize = 15.sp)
+            }
         }
         Column(modifier = Modifier.fillMaxWidth().paperCard().padding(18.dp)) {
             Text("About", fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Ink)

@@ -13,6 +13,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["admobAppId"] = "ca-app-pub-9471606055191983~5469714405"
     }
 
     buildTypes {
@@ -30,6 +31,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -44,5 +46,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.play.services.ads)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

@@ -13,7 +13,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,18 +24,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sreedhar.traditionalrangoli.data.RangoliPattern
+import com.sreedhar.traditionalrangoli.ui.LocalSettings
 import com.sreedhar.traditionalrangoli.ui.components.MetaChip
 import com.sreedhar.traditionalrangoli.ui.components.MotifPreview
 import com.sreedhar.traditionalrangoli.ui.theme.Ink
 import com.sreedhar.traditionalrangoli.ui.theme.Muted
 import com.sreedhar.traditionalrangoli.ui.theme.OnAccent
+import com.sreedhar.traditionalrangoli.ui.theme.Paper
 import com.sreedhar.traditionalrangoli.ui.theme.Primary
 
 @Composable
-fun PatternDetailScreen(pattern: RangoliPattern, onBack: () -> Unit) {
+fun PatternDetailScreen(
+    pattern: RangoliPattern,
+    onBack: () -> Unit,
+    onStartDrawing: () -> Unit,
+    onLearn: () -> Unit
+) {
+    val settings = LocalSettings.current
+    val favorited = settings.favoritePatternIds.contains(pattern.id)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,30 +54,58 @@ fun PatternDetailScreen(pattern: RangoliPattern, onBack: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable(onClick = onBack)) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Ink)
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Ink)
             Text("  Back", color = Primary, fontWeight = FontWeight.SemiBold)
         }
         MotifPreview(pattern.motif, Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)))
         Text(pattern.title, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 28.sp, color = Ink)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MetaChip(pattern.difficulty.title)
-            MetaChip("${pattern.gridSize} × ${pattern.gridSize}")
+            MetaChip("${pattern.gridSize} × ${pattern.gridSize} dots")
             MetaChip("${pattern.stepCount} steps")
+            MetaChip("${pattern.estimatedMinutes} min")
         }
         Text(pattern.description, color = Muted, fontSize = 16.sp)
         Text(
-            "Start Drawing",
+            "Learn Step-by-Step",
             color = OnAccent,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(50))
                 .background(Primary)
-                .clickable(onClick = onBack)
+                .clickable(onClick = onLearn)
                 .padding(vertical = 15.dp),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
-        Text("The drawing studio is next. For now you can browse every courtyard pattern.", color = Muted, fontSize = 13.sp)
+        Text(
+            "Start Drawing",
+            color = Primary,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(50))
+                .background(Paper)
+                .clickable(onClick = onStartDrawing)
+                .padding(vertical = 15.dp),
+            textAlign = TextAlign.Center
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable { settings.toggleFavorite(pattern.id) }.padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (favorited) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                contentDescription = null,
+                tint = Primary
+            )
+            Text(if (favorited) "  Favorited" else "  Favorite", color = Primary, fontWeight = FontWeight.SemiBold)
+        }
+        Text("What's inside", fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Ink)
+        listOf("Dot placement", "Symmetry", "Guided strokes", "Coloring").forEach { item ->
+            Text("•  $item", color = Muted, fontSize = 15.sp)
+        }
     }
 }
 
@@ -73,7 +113,7 @@ fun PatternDetailScreen(pattern: RangoliPattern, onBack: () -> Unit) {
 fun PatternGridScreen(title: String, patterns: List<RangoliPattern>, onBack: () -> Unit, onOpenPattern: (RangoliPattern) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable(onClick = onBack).padding(bottom = 16.dp)) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Ink)
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Ink)
             Text("  $title", fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 22.sp, color = Ink)
         }
         patterns.chunked(2).forEach { row ->

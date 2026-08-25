@@ -29,8 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sreedhar.traditionalrangoli.data.MotifKind
-import com.sreedhar.traditionalrangoli.data.PatternCatalog
-import com.sreedhar.traditionalrangoli.data.RangoliPattern
 import com.sreedhar.traditionalrangoli.ui.components.MotifPreview
 import com.sreedhar.traditionalrangoli.ui.components.SectionHeader
 import com.sreedhar.traditionalrangoli.ui.components.paperCard
@@ -42,7 +40,11 @@ import com.sreedhar.traditionalrangoli.ui.theme.Primary
 import com.sreedhar.traditionalrangoli.ui.theme.Secondary
 
 @Composable
-fun CreateScreen(onOpenPattern: (RangoliPattern) -> Unit) {
+fun CreateScreen(
+    onStartDots: () -> Unit,
+    onStartFreehand: () -> Unit,
+    onChooseTemplate: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,15 +53,9 @@ fun CreateScreen(onOpenPattern: (RangoliPattern) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader("Create", "Three ways to lay powder on the floor")
-        StudioRow("DOT RANGOLI", "Create using a dot grid.", MotifKind.Pulli, Primary) {
-            onOpenPattern(PatternCatalog.all.first { it.motif == MotifKind.Pulli })
-        }
-        StudioRow("FREEHAND", "Draw your own rangoli.", MotifKind.FestivalFlower, Secondary) {
-            onOpenPattern(PatternCatalog.all.first { it.motif == MotifKind.FestivalFlower })
-        }
-        StudioRow("TEMPLATE", "Start from a traditional pattern.", MotifKind.LotusDot, Green) {
-            onOpenPattern(PatternCatalog.daily)
-        }
+        StudioRow("DOT RANGOLI", "Create using a dot grid.", MotifKind.Pulli, Primary, onStartDots)
+        StudioRow("FREEHAND", "Draw your own rangoli.", MotifKind.FestivalFlower, Secondary, onStartFreehand)
+        StudioRow("TEMPLATE", "Start from a traditional pattern.", MotifKind.LotusDot, Green, onChooseTemplate)
         Spacer(Modifier.height(8.dp))
     }
 }

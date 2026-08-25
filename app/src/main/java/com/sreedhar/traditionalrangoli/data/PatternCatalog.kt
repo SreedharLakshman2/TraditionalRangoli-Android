@@ -30,6 +30,8 @@ object PatternCatalog {
 
     val popular: List<RangoliPattern> get() = all.take(6)
 
+    fun pattern(id: String): RangoliPattern? = all.find { it.id == id }
+
     fun matching(collection: BrowseCollection): List<RangoliPattern> = all.filter { pattern ->
         when (collection) {
             BrowseCollection.Festival -> pattern.festivals.isNotEmpty()

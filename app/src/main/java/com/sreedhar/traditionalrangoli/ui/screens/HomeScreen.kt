@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.sreedhar.traditionalrangoli.data.BrowseCollection
 import com.sreedhar.traditionalrangoli.data.PatternCatalog
 import com.sreedhar.traditionalrangoli.data.RangoliPattern
+import com.sreedhar.traditionalrangoli.ui.LocalSettings
 import com.sreedhar.traditionalrangoli.ui.components.CategoryCard
 import com.sreedhar.traditionalrangoli.ui.components.MetaChip
 import com.sreedhar.traditionalrangoli.ui.components.MotifPreview
@@ -66,7 +67,7 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("🔥", fontSize = 18.sp)
-                Text("0", fontWeight = FontWeight.SemiBold, color = Primary, fontSize = 14.sp)
+                Text("${LocalSettings.current.streak}", fontWeight = FontWeight.SemiBold, color = Primary, fontSize = 14.sp)
             }
         }
 
