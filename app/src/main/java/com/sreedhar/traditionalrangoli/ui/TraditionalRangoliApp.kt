@@ -15,7 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.sreedhar.traditionalrangoli.data.BrowseCollection
 import com.sreedhar.traditionalrangoli.data.PatternCatalog
 import com.sreedhar.traditionalrangoli.data.RangoliPattern
 import com.sreedhar.traditionalrangoli.ui.screens.CreateScreen
@@ -29,12 +28,14 @@ import com.sreedhar.traditionalrangoli.ui.screens.SavedScreen
 import com.sreedhar.traditionalrangoli.ui.theme.Ivory
 import kotlinx.coroutines.delay
 
+private data class OpenGrid(val title: String, val patterns: List<RangoliPattern>)
+
 @Composable
 fun TraditionalRangoliApp() {
     var showSplash by remember { mutableStateOf(true) }
     var tab by remember { mutableStateOf(AppTab.Home) }
     var selectedPattern by remember { mutableStateOf<RangoliPattern?>(null) }
-    var selectedCollection by remember { mutableStateOf<BrowseCollection?>(null) }
+    var selectedGrid by remember { mutableStateOf<OpenGrid?>(null) }
 
     LaunchedEffect(Unit) {
         delay(2_100)
@@ -45,7 +46,7 @@ fun TraditionalRangoliApp() {
         Scaffold(
             containerColor = Ivory,
             bottomBar = {
-                if (!showSplash && selectedPattern == null && selectedCollection == null) {
+                if (!showSplash && selectedPattern == null && selectedGrid == null) {
                     CourtyardTabBar(selection = tab, onSelect = { tab = it })
                 }
             }
@@ -53,20 +54,27 @@ fun TraditionalRangoliApp() {
             Box(Modifier.padding(padding).fillMaxSize()) {
                 when {
                     selectedPattern != null -> PatternDetailScreen(selectedPattern!!) { selectedPattern = null }
-                    selectedCollection != null -> PatternGridScreen(
-                        title = selectedCollection!!.title,
-                        patterns = PatternCatalog.matching(selectedCollection!!),
-                        onBack = { selectedCollection = null },
+                    selectedGrid != null -> PatternGridScreen(
+                        title = selectedGrid!!.title,
+                        patterns = selectedGrid!!.patterns,
+                        onBack = { selectedGrid = null },
                         onOpenPattern = { selectedPattern = it }
                     )
                     else -> when (tab) {
                         AppTab.Home -> HomeScreen(
                             onOpenPattern = { selectedPattern = it },
-                            onOpenCollection = { selectedCollection = it }
+                            onOpenCollection = { collection ->
+                                selectedGrid = OpenGrid(
+                                    collection.title,
+                                    PatternCatalog.matching(collection)
+                                )
+                            }
                         )
                         AppTab.Explore -> ExploreScreen(
                             onOpenPattern = { selectedPattern = it },
-                            onOpenCollection = { selectedCollection = it }
+                            onOpenGrid = { title, patterns ->
+                                selectedGrid = OpenGrid(title, patterns)
+                            }
                         )
                         AppTab.Create -> CreateScreen(onOpenPattern = { selectedPattern = it })
                         AppTab.Saved -> SavedScreen(onGoToTab = { tab = it })

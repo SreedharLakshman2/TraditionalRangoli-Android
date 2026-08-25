@@ -2,7 +2,6 @@ package com.sreedhar.traditionalrangoli.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,7 +22,7 @@ import kotlin.math.sin
 
 @Composable
 fun MotifPreview(motif: MotifKind, modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.aspectRatio(1f).fillMaxSize()) {
+    Canvas(modifier = modifier.aspectRatio(1f)) {
         val c = Offset(size.width / 2f, size.height / 2f)
         val r = size.minDimension / 2f
         drawRect(

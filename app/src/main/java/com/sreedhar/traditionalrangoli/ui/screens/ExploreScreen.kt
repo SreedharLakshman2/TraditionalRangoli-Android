@@ -28,8 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sreedhar.traditionalrangoli.data.BrowseCollection
 import com.sreedhar.traditionalrangoli.data.Festival
+import com.sreedhar.traditionalrangoli.data.MotifKind
 import com.sreedhar.traditionalrangoli.data.MotifTheme
 import com.sreedhar.traditionalrangoli.data.PatternCatalog
 import com.sreedhar.traditionalrangoli.data.PatternFamily
@@ -41,12 +41,11 @@ import com.sreedhar.traditionalrangoli.ui.theme.Gold
 import com.sreedhar.traditionalrangoli.ui.theme.Ink
 import com.sreedhar.traditionalrangoli.ui.theme.Muted
 import com.sreedhar.traditionalrangoli.ui.theme.Paper
-import com.sreedhar.traditionalrangoli.ui.theme.Primary
 
 @Composable
 fun ExploreScreen(
     onOpenPattern: (RangoliPattern) -> Unit,
-    onOpenCollection: (BrowseCollection) -> Unit
+    onOpenGrid: (title: String, patterns: List<RangoliPattern>) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     Column(
@@ -74,18 +73,30 @@ fun ExploreScreen(
             )
         )
         if (query.isBlank()) {
-            ExploreRow("TRADITIONAL", PatternFamily.entries.mapNotNull { family ->
-                val items = PatternCatalog.all.filter { it.family == family }
-                items.firstOrNull()?.let { Triple(family.title, "⚬", it) }
-            }, onOpenPattern)
-            ExploreRow("THEMES", MotifTheme.entries.mapNotNull { theme ->
-                val items = PatternCatalog.all.filter { it.theme == theme }
-                items.firstOrNull()?.let { Triple(theme.title, theme.symbol, it) }
-            }, onOpenPattern)
-            ExploreRow("FESTIVALS", Festival.entries.mapNotNull { festival ->
-                val items = PatternCatalog.all.filter { it.festivals.contains(festival) }
-                items.firstOrNull()?.let { Triple(festival.title, "🪔", it) }
-            }, onOpenPattern)
+            ExploreRow(
+                title = "TRADITIONAL",
+                items = PatternFamily.entries.mapNotNull { family ->
+                    val items = PatternCatalog.all.filter { it.family == family }
+                    items.firstOrNull()?.let { ExploreBucket(family.title, "⚬", it.motif, items) }
+                },
+                onOpenGrid = onOpenGrid
+            )
+            ExploreRow(
+                title = "THEMES",
+                items = MotifTheme.entries.mapNotNull { theme ->
+                    val items = PatternCatalog.all.filter { it.theme == theme }
+                    items.firstOrNull()?.let { ExploreBucket(theme.title, theme.symbol, it.motif, items) }
+                },
+                onOpenGrid = onOpenGrid
+            )
+            ExploreRow(
+                title = "FESTIVALS",
+                items = Festival.entries.mapNotNull { festival ->
+                    val items = PatternCatalog.all.filter { it.festivals.contains(festival) }
+                    items.firstOrNull()?.let { ExploreBucket(festival.title, "🪔", it.motif, items) }
+                },
+                onOpenGrid = onOpenGrid
+            )
         } else {
             PatternCatalog.search(query).chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
@@ -100,18 +111,27 @@ fun ExploreScreen(
     }
 }
 
+private data class ExploreBucket(
+    val title: String,
+    val symbol: String,
+    val motif: MotifKind,
+    val patterns: List<RangoliPattern>
+)
+
 @Composable
 private fun ExploreRow(
     title: String,
-    items: List<Triple<String, String, RangoliPattern>>,
-    onOpenPattern: (RangoliPattern) -> Unit
+    items: List<ExploreBucket>,
+    onOpenGrid: (String, List<RangoliPattern>) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(title, color = Gold, fontSize = 12.sp, letterSpacing = 1.6.sp)
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items.forEach { (label, symbol, pattern) ->
+            items.forEach { item ->
                 Box(Modifier.width(148.dp)) {
-                    CategoryCard(label, symbol, pattern.motif) { onOpenPattern(pattern) }
+                    CategoryCard(item.title, item.symbol, item.motif) {
+                        onOpenGrid(item.title, item.patterns)
+                    }
                 }
             }
         }
