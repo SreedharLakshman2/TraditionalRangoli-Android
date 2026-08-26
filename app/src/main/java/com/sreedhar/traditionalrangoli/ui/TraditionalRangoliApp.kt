@@ -17,8 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import com.sreedhar.traditionalrangoli.ads.AdsManager
 import com.sreedhar.traditionalrangoli.data.PatternCatalog
 import com.sreedhar.traditionalrangoli.data.RangoliPattern
 import com.sreedhar.traditionalrangoli.data.StudioRoute
@@ -39,7 +37,6 @@ private data class OpenGrid(val title: String, val patterns: List<RangoliPattern
 
 @Composable
 fun TraditionalRangoliApp() {
-    val context = LocalContext.current
     var showSplash by remember { mutableStateOf(true) }
     var tab by remember { mutableStateOf(AppTab.Home) }
     var selectedPattern by remember { mutableStateOf<RangoliPattern?>(null) }
@@ -48,9 +45,8 @@ fun TraditionalRangoliApp() {
     var showTemplates by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(2_100)
+        delay(900)
         showSplash = false
-        AdsManager.bootstrap(context)
     }
 
     val showingStudio = studio != null

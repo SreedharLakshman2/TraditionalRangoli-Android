@@ -31,14 +31,14 @@ object AdsManager {
         if (didBootstrap) return
         didBootstrap = true
         val app = context.applicationContext
-        main.postDelayed({
+        Thread {
             MobileAds.initialize(app) {
                 main.post {
                     isReady = true
                     preload(app)
                 }
             }
-        }, 1_200)
+        }.start()
     }
 
     fun preload(context: Context) {

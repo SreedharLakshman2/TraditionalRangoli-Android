@@ -1,6 +1,7 @@
 package com.sreedhar.traditionalrangoli
 
 import android.app.Application
+import com.sreedhar.traditionalrangoli.ads.AdsManager
 import com.sreedhar.traditionalrangoli.data.ArtworkStore
 import com.sreedhar.traditionalrangoli.data.SettingsStore
 
@@ -14,5 +15,6 @@ class RangoliApplication : Application() {
         super.onCreate()
         settings = SettingsStore(this)
         artworks = ArtworkStore(this)
+        AdsManager.bootstrap(this)
     }
 }
